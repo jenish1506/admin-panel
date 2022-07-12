@@ -7,7 +7,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import * as yup from "yup";
 import { Formik, Form, useFormik } from "formik";
-import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -21,7 +20,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import Container from "@mui/material/Container";
 
-const Medicine = () => {
+const Doctors = () => {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
   const [dOpen, setDOpen] = useState(false);
@@ -31,7 +30,7 @@ const Medicine = () => {
   const [deleteAll, setDeleteAll] = useState(false);
 
   const loadData = () => {
-    let localData = JSON.parse(localStorage.getItem("medicine"));
+    let localData = JSON.parse(localStorage.getItem("doctor"));
     if (localData !== null) {
       setData(localData);
     }
@@ -58,15 +57,15 @@ const Medicine = () => {
   };
 
   const handleInsert = (values) => {
-    let localData = JSON.parse(localStorage.getItem("medicine"));
+    let localData = JSON.parse(localStorage.getItem("doctor"));
 
     let data = { id: new Date().getTime().toString(), ...values };
 
     if (localData) {
       localData.push(data);
-      localStorage.setItem("medicine", JSON.stringify(localData));
+      localStorage.setItem("doctor", JSON.stringify(localData));
     } else {
-      localStorage.setItem("medicine", JSON.stringify([data]));
+      localStorage.setItem("doctor", JSON.stringify([data]));
     }
 
     loadData();
@@ -74,7 +73,7 @@ const Medicine = () => {
   };
 
   const handleDelete = () => {
-    let localData = JSON.parse(localStorage.getItem("medicine"));
+    let localData = JSON.parse(localStorage.getItem("doctor"));
 
     let fData;
     if (deleteAll) {
@@ -83,7 +82,7 @@ const Medicine = () => {
       fData = localData.filter((v) => v.id !== did);
     }
 
-    localStorage.setItem("medicine", JSON.stringify(fData));
+    localStorage.setItem("doctor", JSON.stringify(fData));
 
     loadData();
     handleClose();
@@ -96,7 +95,7 @@ const Medicine = () => {
   };
 
   const handleUpdate = (values) => {
-    let localData = JSON.parse(localStorage.getItem("medicine"));
+    let localData = JSON.parse(localStorage.getItem("doctor"));
 
     const updateData = localData.map((v) => {
       if (v.id === values.id) {
@@ -106,7 +105,7 @@ const Medicine = () => {
       }
     });
 
-    localStorage.setItem("medicine", JSON.stringify(updateData));
+    localStorage.setItem("doctor", JSON.stringify(updateData));
 
     loadData();
     handleClose();
@@ -116,41 +115,27 @@ const Medicine = () => {
     {
       field: "id",
       headerName: "ID",
-      width: 160,
+      width: 275,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "name",
-      headerName: "Medicine Name",
-      width: 160,
+      headerName: "Doctor Name",
+      width: 275,
       headerAlign: "center",
     },
     {
-      field: "quantity",
-      headerName: "Quantity",
-      width: 160,
-      headerAlign: "center",
-      align: "right",
-    },
-    {
-      field: "price",
-      headerName: "Price (₹)",
-      width: 160,
-      headerAlign: "center",
-      align: "right",
-    },
-    {
-      field: "expiry",
-      headerName: "Expiry Date",
-      width: 160,
+      field: "departments",
+      headerName: "Department",
+      width: 275,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "action",
       headerName: "Action",
-      width: 160,
+      width: 275,
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
@@ -179,26 +164,13 @@ const Medicine = () => {
 
   let schema = yup.object().shape({
     name: yup.string().required("Please Enter Name"),
-    quantity: yup
-      .number()
-      .required("Please Enter Quantity")
-      .positive("Quantity must be a positive number")
-      .integer("Quantity must be an Integer")
-      .typeError("Quantity must be a number"),
-    price: yup
-      .number()
-      .required("Please Enter Price")
-      .positive("Price must be a positive number")
-      .typeError("Price must be a number"),
-    expiry: yup.string().required("Please Select Expiry Date"),
+    departments: yup.string().required("Please Select Department"),
   });
 
   const formik = useFormik({
     initialValues: {
       name: "",
-      quantity: "",
-      price: "",
-      expiry: "",
+      departments: "",
     },
     validationSchema: schema,
     onSubmit: (values) => {
@@ -220,7 +192,6 @@ const Medicine = () => {
     resetForm,
     setValues,
   } = formik;
-
   return (
     <>
       <Container maxWidth="lg">
@@ -230,7 +201,7 @@ const Medicine = () => {
             startIcon={<AddIcon />}
             onClick={handleClickOpen}
           >
-            Add Medicine
+            Add Doctors
           </Button>
           <Button
             disabled={selectionModel.length === 0}
@@ -260,9 +231,9 @@ const Medicine = () => {
         </Box>
         <Dialog open={open} onClose={handleClose} fullWidth>
           {update ? (
-            <DialogTitle>Update Medicine</DialogTitle>
+            <DialogTitle>Update Doctors</DialogTitle>
           ) : (
-            <DialogTitle>Add Medicine</DialogTitle>
+            <DialogTitle>Add Doctors</DialogTitle>
           )}
           <Formik values={formik}>
             <Form onSubmit={handleSubmit}>
@@ -278,64 +249,34 @@ const Medicine = () => {
                   name="name"
                   fullWidth
                 />
-                <TextField
-                  error={errors.quantity && touched.quantity}
-                  margin="dense"
-                  id="quantity"
-                  label={
-                    errors.quantity && touched.quantity
-                      ? errors.quantity
-                      : "Quantity"
-                  }
-                  onChange={handleChange}
-                  value={values.quantity}
-                  onBlur={handleBlur}
-                  name="quantity"
-                  fullWidth
-                />
-                <TextField
-                  error={errors.price && touched.price}
-                  margin="dense"
-                  id="price"
-                  label={errors.price && touched.price ? errors.price : "Price"}
-                  onChange={handleChange}
-                  value={values.price}
-                  onBlur={handleBlur}
-                  name="price"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="start">₹</InputAdornment>
-                    ),
-                  }}
-                  fullWidth
-                />
                 <FormControl
-                  error={errors.expiry && touched.expiry}
+                  error={errors.departments && touched.departments}
                   margin="dense"
                   fullWidth
                 >
-                  <InputLabel id="expiry-date">
-                    {errors.expiry && touched.expiry
-                      ? "Please Select Expiry Date"
-                      : "Expiry Date"}
+                  <InputLabel id="departments">
+                    {errors.departments && touched.departments
+                      ? "Please Select Department"
+                      : "Department"}
                   </InputLabel>
                   <Select
-                    labelId="expiry-date"
+                    labelId="departments"
                     onChange={handleChange}
-                    value={values.expiry}
+                    value={values.departments}
                     onBlur={handleBlur}
-                    id="expiry"
-                    name="expiry"
+                    id="departments"
+                    name="departments"
                     label={
-                      errors.expiry && touched.expiry
-                        ? errors.expiry
-                        : "Expiry Date"
+                      errors.departments && touched.departments
+                        ? errors.departments
+                        : "Departments"
                     }
                   >
-                    <MenuItem value={2022}>2022</MenuItem>
-                    <MenuItem value={2023}>2023</MenuItem>
-                    <MenuItem value={2024}>2024</MenuItem>
-                    <MenuItem value={2025}>2025</MenuItem>
+                    <MenuItem value="Cardiology">Cardiology</MenuItem>
+                    <MenuItem value="Neurology">Neurology</MenuItem>
+                    <MenuItem value="Hepatology">Hepatology</MenuItem>
+                    <MenuItem value="Pediatrics">Pediatrics</MenuItem>
+                    <MenuItem value="Eye-Care">Eye Care</MenuItem>
                   </Select>
                 </FormControl>
               </DialogContent>
@@ -373,4 +314,4 @@ const Medicine = () => {
   );
 };
 
-export default Medicine;
+export default Doctors;
