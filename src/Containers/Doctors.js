@@ -7,6 +7,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import * as yup from "yup";
 import { Formik, Form, useFormik } from "formik";
+import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -19,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import Container from "@mui/material/Container";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Doctors = () => {
   const [open, setOpen] = useState(false);
@@ -28,6 +30,7 @@ const Doctors = () => {
   const [update, setUpdate] = useState(false);
   const [selectionModel, setSelectionModel] = useState([]);
   const [deleteAll, setDeleteAll] = useState(false);
+  const [filterData, setFilterData] = useState([]);
 
   const loadData = () => {
     let localData = JSON.parse(localStorage.getItem("doctor"));
@@ -192,6 +195,21 @@ const Doctors = () => {
     resetForm,
     setValues,
   } = formik;
+
+  const handleSearch = (val) => {
+    let localData = JSON.parse(localStorage.getItem("doctor"));
+
+    let sData = localData.filter((s) => {
+      return (
+        s.name.toLowerCase().includes(val.toLowerCase()) ||
+        s.departments.toLowerCase().includes(val.toLowerCase())
+      );
+    });
+    setFilterData(sData);
+  };
+
+  const finalData = filterData.length > 0 ? filterData : data;
+
   return (
     <>
       <Container maxWidth="lg">
@@ -215,9 +233,23 @@ const Doctors = () => {
             Delete
           </Button>
         </Stack>
+        <TextField
+          sx={{ mb: 3 }}
+          fullWidth
+          id="search"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          variant="outlined"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Box sx={{ height: 579 }}>
           <DataGrid
-            rows={data}
+            rows={finalData}
             columns={columns}
             pageSize={9}
             rowsPerPageOptions={[9]}

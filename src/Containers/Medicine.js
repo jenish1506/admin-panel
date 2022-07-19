@@ -20,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import Container from "@mui/material/Container";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Medicine = () => {
   const [open, setOpen] = useState(false);
@@ -29,6 +30,7 @@ const Medicine = () => {
   const [update, setUpdate] = useState(false);
   const [selectionModel, setSelectionModel] = useState([]);
   const [deleteAll, setDeleteAll] = useState(false);
+  const [filterData, setFilterData] = useState([]);
 
   const loadData = () => {
     let localData = JSON.parse(localStorage.getItem("medicine"));
@@ -116,41 +118,41 @@ const Medicine = () => {
     {
       field: "id",
       headerName: "ID",
-      width: 160,
+      width: 183,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "name",
       headerName: "Medicine Name",
-      width: 160,
+      width: 183,
       headerAlign: "center",
     },
     {
       field: "quantity",
       headerName: "Quantity",
-      width: 160,
+      width: 183,
       headerAlign: "center",
       align: "right",
     },
     {
       field: "price",
       headerName: "Price (₹)",
-      width: 160,
+      width: 183,
       headerAlign: "center",
       align: "right",
     },
     {
       field: "expiry",
       headerName: "Expiry Date",
-      width: 160,
+      width: 183,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "action",
       headerName: "Action",
-      width: 160,
+      width: 183,
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
@@ -190,7 +192,7 @@ const Medicine = () => {
       .required("Please Enter Price")
       .positive("Price must be a positive number")
       .typeError("Price must be a number"),
-    expiry: yup.string().required("Please Select Expiry Date"),
+    expiry: yup.number().required("Please Select Expiry Date"),
   });
 
   const formik = useFormik({
@@ -221,6 +223,22 @@ const Medicine = () => {
     setValues,
   } = formik;
 
+  const handleSearch = (val) => {
+    let localData = JSON.parse(localStorage.getItem("medicine"));
+
+    let sData = localData.filter((s) => {
+      return (
+        s.name.toLowerCase().includes(val.toLowerCase()) ||
+        s.price.toString().includes(val) ||
+        s.quantity.toString().includes(val) ||
+        s.expiry.toString().includes(val)
+      );
+    });
+    setFilterData(sData);
+  };
+
+  const finalData = filterData.length > 0 ? filterData : data;
+
   return (
     <>
       <Container maxWidth="lg">
@@ -244,9 +262,23 @@ const Medicine = () => {
             Delete
           </Button>
         </Stack>
+        <TextField
+          sx={{ mb: 3 }}
+          fullWidth
+          id="search"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          variant="outlined"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Box sx={{ height: 579 }}>
           <DataGrid
-            rows={data}
+            rows={finalData}
             columns={columns}
             pageSize={9}
             rowsPerPageOptions={[9]}
